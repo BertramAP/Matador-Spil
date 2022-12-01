@@ -6,12 +6,11 @@ class Game(pyglet.event.EventDispatcher):
     def __init__(self) -> None:
         super().__init__()
 
-        self.batch = pyglet.graphics.Batch()        
-
-        self.board = Board(self.batch)
+        self.board = Board()
 
     def on_draw(self):
-        self.batch.draw()
+        self.board.draw()
+        #self.board.spaces[0].label.draw()
     
 if __name__ == "__main__":
     SIDELENGTH = 704
