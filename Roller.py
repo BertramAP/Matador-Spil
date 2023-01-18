@@ -1,5 +1,6 @@
 import pyglet
-from random import randint
+from random import randint, sample
+from time import sleep
 
 class Roller(pyglet.event.EventDispatcher):
     def __init__(self):
@@ -15,20 +16,26 @@ class Roller(pyglet.event.EventDispatcher):
         self.label = pyglet.text.Label("Rul", anchor_x="center",font_size=30, x=350, y= 210, batch=self.tbatch)
 
         dice_pic = pyglet.image.load("resources/dice2.png")
-        self.dice = [pyglet.sprite.Sprite(dice_pic.get_region(i*96,0,96,96),x=244,y=290, batch=self.bbatch) for i in range(6)]
+        self.all_dice = [dice_pic.get_region(i*96,0,96,96) for i in range(6)]
+        self.dice = sample(self.all_dice, 2)
+
+        self.clock = pyglet.clock.get_default()
 
     def initialise(self):
-        #TODO: scedule dice_drawer funktionen her til TBA gange i sekundet
+        self.clock.schedule_interval(self.dice_changer, 0.1)
 
     def end(self):
-        #TODO: unschedule dice_drawer funktionen her
+        pass
 
-    def dice_drawer():
-        #TODO: blit to tilfældige terninger ind over rul knappen
+    def dice_changer(self, dt):
+        self.dice = sample(self.all_dice, 2)
 
     def draw(self):
         self.bbatch.draw()
         self.tbatch.draw()
+
+        self.dice[0].blit(244, 290, 0)
+        self.dice[1].blit(360, 290, 0)
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == 1 and 300 <= x <= 400 and 200 <= y <= 250:
@@ -39,6 +46,10 @@ class Roller(pyglet.event.EventDispatcher):
     def on_mouse_release(self, x, y, button, modifiers):
         self.button.color = (255,0,0)
         if button == 1 and 300 <= x <= 400 and 200 <= y <= 250 and self.pressed_button:
-            self.dispatch_event("rolled", randint(1,6) + randint(1,6))
+            self.clock.unschedule(self.dice_changer)
+            one = randint(1,6)
+            two = randint(1,6)
+            self.dice = [self.all_dice[one-1], self.all_dice[two-1]]
+            self.dispatch_event("rolled", one + two)
             
 

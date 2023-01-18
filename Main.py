@@ -27,8 +27,10 @@ class Game(pyglet.event.EventDispatcher):
     def init_screen(self, tindex: int) -> None:
         self.screens[self.active_screen].end()
         self.window.pop_handlers()
+
         self.window.push_handlers(self.screens[tindex])
         self.screens[tindex].initialise()
+        
         self.active_screen = tindex
 
     def on_draw(self):
@@ -43,6 +45,7 @@ class Game(pyglet.event.EventDispatcher):
     def rolled(self, val):
         self.players[self.active_player].move_by(val)
         self.active_player = (self.active_player+1)%self.nplayers
+        self.init_screen(0)
     
 if __name__ == "__main__":
     SIDELENGTH = 704
