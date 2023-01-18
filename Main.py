@@ -21,6 +21,15 @@ class Game(pyglet.event.EventDispatcher):
         self.window = window
         self.window.set_handler("on_draw", self.on_draw)
         self.window.push_handlers(self.screens[self.active_screen])
+        
+        self.init_screen(0)
+
+    def init_screen(self, tindex: int) -> None:
+        self.screens[self.active_screen].end()
+        self.window.pop_handlers()
+        self.window.push_handlers(self.screens[tindex])
+        self.screens[tindex].initialise()
+        self.active_screen = tindex
 
     def on_draw(self):
         self.window.clear()

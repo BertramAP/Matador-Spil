@@ -14,7 +14,17 @@ class Roller(pyglet.event.EventDispatcher):
         self.button = pyglet.shapes.Rectangle(300, 200, 100, 50, (255,0,0), batch=self.bbatch)
         self.label = pyglet.text.Label("Rul", anchor_x="center",font_size=30, x=350, y= 210, batch=self.tbatch)
 
-        self.dice = [[[0,0]], ]
+        dice_pic = pyglet.image.load("resources/dice2.png")
+        self.dice = [pyglet.sprite.Sprite(dice_pic.get_region(i*96,0,96,96),x=244,y=290, batch=self.bbatch) for i in range(6)]
+
+    def initialise(self):
+        #TODO: scedule dice_drawer funktionen her til TBA gange i sekundet
+
+    def end(self):
+        #TODO: unschedule dice_drawer funktionen her
+
+    def dice_drawer():
+        #TODO: blit to tilfældige terninger ind over rul knappen
 
     def draw(self):
         self.bbatch.draw()
