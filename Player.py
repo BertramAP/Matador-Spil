@@ -1,12 +1,12 @@
 import pyglet
 
 class Player(pyglet.event.EventDispatcher):
-    def __init__(self, id: int, pos: tuple[int, int], r: int, color: tuple[int, int, int], money: int, batch):
+    def __init__(self, id: int, pos: tuple[int, int], r: int, color: tuple[int, int, int], money: int):
         super().__init__()
         self.register_event_type("update_bank")
 
         self.id: int = id
-        self.circle = pyglet.shapes.Circle(pos[0], pos[1], r, color=color, batch=batch)
+        self.circle = pyglet.shapes.Circle(pos[0], pos[1], r, color=color)
         self.money: int = money
         self.tile = 0
         self.streetCardsOwned = []
