@@ -65,6 +65,7 @@ class Game(pyglet.event.EventDispatcher):
 
     def update_bank(self, pid):
         self.docs[pid].text = str(self.players[self.active_player].money)
+        #TODO gå tilbage til labels i stedet
 
 if __name__ == "__main__":
     SIDELENGTH = 704
