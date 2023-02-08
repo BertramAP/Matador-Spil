@@ -27,6 +27,9 @@ class Roller(pyglet.event.EventDispatcher):
     def end(self):
         pass
 
+    def throw_success(self, dt, res) -> None:
+        self.dispatch_event("rolled", res)
+
     def dice_changer(self, dt):
         self.dice = sample(self.all_dice, 2)
 
@@ -50,6 +53,6 @@ class Roller(pyglet.event.EventDispatcher):
             one = randint(1,6)
             two = randint(1,6)
             self.dice = [self.all_dice[one-1], self.all_dice[two-1]]
-            self.dispatch_event("rolled", one + two)
             
+            self.clock.schedule_once(self.throw_success, 2, res=one+two)
 

@@ -1,16 +1,7 @@
-class A:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-    
-    def print(self):
-        print(self.x, self.y)
+#eksempel
 
-def nums():
-    return (10, 10)
-
-a = A()
-
-a.x, a.y = nums()
-
-a.print()
+def fødselsdags_gave(player, pulledid, data):
+    if player.id == pulledid:
+        player.cash += 10*nplayers-10
+    else:
+        player.cash -= 10

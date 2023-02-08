@@ -1,11 +1,15 @@
 import pyglet
 
-class Player:
-    def __init__(self, id: int, pos: tuple[int, int], r: int, color: tuple[int, int, int], money: int,):
+class Player(pyglet.event.EventDispatcher):
+    def __init__(self, id: int, pos: tuple[int, int], r: int, color: tuple[int, int, int], money: int, batch):
+        super().__init__()
+        self.register_event_type("update_bank")
+
         self.id: int = id
-        self.circle = pyglet.shapes.Circle(pos[0], pos[1], r, color=color)
+        self.circle = pyglet.shapes.Circle(pos[0], pos[1], r, color=color, batch=batch)
         self.money: int = money
         self.tile = 0
+        self.streetCardsOwned = []
 
     def draw(self):
         self.circle.draw()
@@ -40,8 +44,21 @@ class Player:
     def move_by(self, spaces: int) -> None:
         self.move_to((self.tile+spaces)%40)
 
+    def make_payment(self, amount) -> int:
+        self.money -= amount
+
+        self.dispatch_event("update_bank", self.id)
+
     @staticmethod
     def get_color(pid):
         colors = [(255,0,0), (0,0,255), (0,255,0), (244,179,38)]
         return colors[pid]
+
+    """def addStreetCard(self, card):
+        for i in range(len(self.streetCardsOwned)):
+            if (self.streetCardsOwned[i][0].RGB == card.RGB):
+                self.streetCardsOwned[i].append(card)
+                card.checkAmountOwned(self.streetCardsOwned)
+            else:
+                self.streetCardsOwned.append([card])"""
 
