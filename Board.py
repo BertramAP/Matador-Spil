@@ -13,6 +13,9 @@ class Board:
         self.bot_batch.draw()
         self.top_batch.draw()
 
+    def get_card(self, tile: int):
+        return self.spaces[tile].card
+
 def generate_spaces(bot_batch, top_batch):
     lst = [0]*40
 

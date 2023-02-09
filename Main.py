@@ -2,6 +2,7 @@ import pyglet
 import Player
 import Board
 import Screens
+import Cards
 
 import random
 
@@ -14,10 +15,11 @@ class Game(pyglet.event.EventDispatcher):
         self.register_event_type("update_bank")
         self.register_event_type("next_player")
         self.register_event_type("change_screen")
+        self.register_event_type("Pay_player")
         
         self.board = Board.Board()
 
-        self.screens = {"Roller": Screens.Roller(), "Idle": Screens.Idle()}
+        self.screens = {"Roller": Screens.Roller(), "Idle": Screens.Idle(), "BuyProperty": Screens.BuyProperty(), "Auction": Screens.Auction()}
         self.active_screen = "Roller"
         for key in self.screens.keys():
             self.screens[key].push_handlers(self)
@@ -73,10 +75,16 @@ class Game(pyglet.event.EventDispatcher):
         self.change_screen("Roller", dict())
 
     def rolled(self, val) -> None:
-        self.players[self.active_player].move_by(val)
-        self.players[self.active_player].make_payment(val)
-        self.change_screen("Idle", dict(text="du har rullet"))
+        tile = self.players[self.active_player].move_by(val)
+        card = self.board.get_card(tile)
 
+        if type(card) == Cards.street: #skal tilføje firmaer og skibsporte
+            if card.owner != -1:
+                pass
+            if card.owner == -1:
+
+                self.change_screen("BuyProperty", dict(card=card, player=self.players[self.active_player]))
+            
     def update_bank(self, pid) -> None:
         self.money_labels[pid].text = str(self.players[pid].money)+"kr."
 
@@ -84,7 +92,6 @@ if __name__ == "__main__":
     SIDELENGTH = 704
     window = pyglet.window.Window(SIDELENGTH, SIDELENGTH)
 
-    game = Game(window, 3, 30_000)
+    game = Game(window, 3)
 
     pyglet.app.run()
-    

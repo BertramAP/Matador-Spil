@@ -86,3 +86,19 @@ class Idle(pyglet.event.EventDispatcher):
         self.button.color = (255,0,0)
         if button == 1 and 300 <= x <= 400 and 200 <= y <= 250 and self.pressed_button:
             self.dispatch_event("next_player")
+
+class BuyProperty(pyglet.event.EventDispatcher):
+    def __init__(self) -> None:
+        super().__init__()
+
+
+class Auction(pyglet.event.EventDispatcher):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.participants = []
+
+    def initialise(self, players):
+        self.paraticipants = players
+        
+        
