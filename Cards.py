@@ -149,6 +149,18 @@ class streetCard(street):
         super.__init__()
         self.eventType
 
+def get_coord(i: int):
+    if i < 11:
+        return (0, 64*i)
+    if i < 20:
+        i -= 10
+        return (i*64, 640)
+    if i < 30:
+        i -= 20
+        return (640, 640 - i*64)
+    i -= 30
+    return (640 - i*64, 0)
+
 def generate_spaces(bot_batch, top_batch):
     chance = Chance()
     parkingplace = parkingSpace()
@@ -162,7 +174,7 @@ def generate_spaces(bot_batch, top_batch):
             [Chance],[street("Frederiksberggade", [255, 234, 0], 7000, [700, 3500, 10000, 22000, 26000, 30000]), street("Rådhuspladsen", [255, 234, 0], 8000, [1000, 4000, 12000, 28000, 34000, 40000])],[payTaxSpace(False)]]
     newSpaces = []
 
-    for i in range(len(Spaces)):
+    """for i in range(len(Spaces)):
         if (len(Spaces[i]) > 1):
             for x in range(len(Spaces[i])):
                 if (x == 1):
@@ -172,13 +184,13 @@ def generate_spaces(bot_batch, top_batch):
                 else:
                     newSpaces.append(Spaces[i][x])
                 i+=1
-        newSpaces.append(Spaces[i][0])
+        newSpaces.append(Spaces[i][0])"""
 
     lst = [0]*40
 
-    lst[0] = Cards.Space((0,0),"START", 10, (234,169,28), bot_batch, top_batch)
+    lst[0] = Space((0,0),"START", 10, (234,169,28), bot_batch, top_batch)
 
     for i in range(1, 40):
-       lst[i] = Cards.Space(get_coord(i), newSpaces[i].name, 10, (255,255,255), bot_batch, top_batch)
+       lst[i] = Space(get_coord(i), str(i), 10, (255,255,255), bot_batch, top_batch)
 
     return lst

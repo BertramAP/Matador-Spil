@@ -12,12 +12,15 @@ class Game(pyglet.event.EventDispatcher):
         super().__init__()
         self.register_event_type("rolled")
         self.register_event_type("update_bank")
+        self.register_event_type("next_player")
+        self.register_event_type("change_screen")
         
         self.board = Board.Board()
 
-        self.screens = [Screens.Roller(), ]
-        self.active_screen = 0
-        self.screens[self.active_screen].push_handlers(self)
+        self.screens = {"Roller": Screens.Roller(), "Idle": Screens.Idle()}
+        self.active_screen = "Roller"
+        for key in self.screens.keys():
+            self.screens[key].push_handlers(self)
 
         self.pbatch = pyglet.graphics.Batch()
 
@@ -36,25 +39,24 @@ class Game(pyglet.event.EventDispatcher):
         for player in self.players:
             player.push_handlers(self)
 
-        self.init_screen(0)
+        self.change_screen("Roller", dict())
 
-    def init_screen(self, tindex: int) -> None:
-        self.screens[self.active_screen].end()
+    def change_screen(self, tscreen: str, data: dict) -> None:
         self.window.pop_handlers()
 
-        self.window.push_handlers(self.screens[tindex])
-        self.screens[tindex].initialise()
+        self.window.push_handlers(self.screens[tscreen])
+        self.screens[tscreen].initialise(data)
         
-        self.active_screen = tindex
+        self.active_screen = tscreen
 
-    def on_draw(self):
+    def on_draw(self) -> None:
         self.window.clear()
 
         self.board.draw()
         self.screens[self.active_screen].draw()
         self.draw_player_stuff()
 
-    def draw_player_stuff(self):
+    def draw_player_stuff(self) -> None:
         for player in self.players:
             player.circle.draw()
 
@@ -68,15 +70,15 @@ class Game(pyglet.event.EventDispatcher):
 
     def next_player(self) -> None:
         self.active_player = (self.active_player+1)%self.nplayers
-        self.init_screen(0)
+        self.change_screen("Roller", dict())
 
-    def rolled(self, val):
+    def rolled(self, val) -> None:
         self.players[self.active_player].move_by(val)
         self.players[self.active_player].make_payment(val)
-        self.next_player()
+        self.change_screen("Idle", dict(text="du har rullet"))
 
-    def update_bank(self, pid):
-        self.money_labels[pid].text = str(self.players[self.active_player].money)+"kr."
+    def update_bank(self, pid) -> None:
+        self.money_labels[pid].text = str(self.players[pid].money)+"kr."
 
 if __name__ == "__main__":
     SIDELENGTH = 704
