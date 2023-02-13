@@ -1,10 +1,9 @@
 import random
 import pyglet
-
 class Space:
     def __init__(self, card, pos: tuple[int, int], name: str, font_size: int, bgc: tuple[int], batch1: pyglet.graphics.Batch, batch2: pyglet.graphics.Batch) -> None:
         self.card = card
-        
+
         self.x: int = pos[0]
         self.y: int = pos[1]
         self.name: str = name
@@ -87,10 +86,10 @@ class street:
     def drawCard(self, x, y, width, height):
         self.cardlabels = []
         self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height, (255, 255, 255)))
-        self.cardlabels.append(pyglet.shapes.Rectangle(x, y+9/height, width, height/10, self.RGB)) #højden af headeren kan altid ændres
-        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=12, color=(0,0,0,255), x=width/2+x, y=height/20+y+height/9))
-        self.cardlabels.append(pyglet.text.Label(f"Leje af grunde >> {self.rents[0]}kr\nmed 1 hus >> {self.rents[1]}kr\n>> 2 huse >> {self.rents[2]}kr\n>> 3 huse >> {self.rents[3]}kr\n>> 4 huse >> {self.rents[4]}kr\n>> hotel >> {self.rents[5]}kr", multiline=True, width=width, height=height, anchor_x="left", anchor_y="top",font_size=8, color=(0,0,0,255), x=x, y=9/10*height+y))
-        self.cardlabels.append(pyglet.text.Label(f"Hvert hus koster {self.upgradeCost}kr\n et hotel koster {self.upgradeCost}kr + 4 huse",anchor_x="center",multiline=True, width=width, height=height, anchor_y="center",font_size=8, color=(0,0,0,255), x=x, y=y+(2*height)/10))
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y+9/10*height, width, height/10, self.RGB)) #højden af headeren kan altid ændres
+        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=15, color=(0,0,0,255), x=width/2+x, y=y+height*9/10+height/20))
+        self.cardlabels.append(pyglet.text.Label(f"Leje af grunde >> {self.rents[0]}kr\n>> med 1 hus >> {self.rents[1]}kr\n>> 2 huse >> {self.rents[2]}kr\n>> 3 huse >> {self.rents[3]}kr\n>> 4 huse >> {self.rents[4]}kr\n>> hotel >> {self.rents[5]}kr", multiline=True, width=width, height=height, anchor_x="left", anchor_y="top",font_size=10, color=(0,0,0,255), x=x, y=9/10*height+y))
+        self.cardlabels.append(pyglet.text.Label(f"Hvert hus koster {self.upgradeCost}kr\net hotel koster {self.upgradeCost}kr + 4 huse",anchor_x="left", anchor_y="top",multiline=True, width=width, height=height,font_size=10, color=(0,0,0,255), x=x, y=y+(height)/2))
         return self.cardlabels
 
 class Chance:
@@ -136,9 +135,9 @@ class shippingPort:
     def drawCard(self, x, y, width, height):
         self.cardlabels = []
         self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height, (255, 255, 255)))
-        self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height/10, self.RGB)) #højden af headeren kan altid ændres
-        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=30, x=width/2+x, y=height/20+y+height/9))
-        self.cardlabels.append(pyglet.text.Label(f"Leje >> {self.rent}kr\nHvis 2 skipsporte ejes >> {self.rent*2}kr\nHvis 3 skipsporte ejes >> {self.rent*4}kr\nHvis 4 skipsporte ejes >> {self.rent*8}kr", multiline=True, width=width, height=height, anchor_x="left", anchor_y="top",font_size=8, color=(0,0,0,255), x=x, y=y+(2*height)/10))
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y+height*9/10, width, height/10, self.RGB)) #højden af headeren kan altid ændres
+        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=15, x=width/2+x, y=y+height*9.5/10))
+        self.cardlabels.append(pyglet.text.Label(f"Leje >> {self.rent}kr\nHvis 2 skipsporte ejes >> {self.rent*2}kr\nHvis 3 skipsporte ejes >> {self.rent*4}kr\nHvis 4 skipsporte ejes >> {self.rent*8}kr", multiline=True, width=width, height=height, anchor_x="left", anchor_y="top",font_size=10, color=(0,0,0,255), x=x, y=9/10*height+y))
 
         return self.cardlabels
 
@@ -161,9 +160,9 @@ class Corparation:
     def drawCard(self, x, y, width, height):
         self.cardlabels = []
         self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height, (255, 255, 255)))
-        self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height/10, self.RGB)) #højden af headeren kan altid ændres
-        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=8, x=width/2+x, y=height/20+y+height/9))
-        self.cardlabels.append(pyglet.text.Label(f"Hvis en virksomhed ejes, skal der betales {self.rent} gange så meget som øjnene viser\nHvis både Coca-Cola og Tuborg ejes, betales {self.rent*2} gange så meget som øjnene viser.", anchor_x="left", anchor_y="top",font_size=8, color=(0,0,0,255), multiline=True, width=width, height=height, x=x, y=y+(2*height)/10))
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y+height*9/10, width, height/10, self.RGB)) #højden af headeren kan altid ændres
+        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=15, x=width/2+x, y=y+height*9.5/10))
+        self.cardlabels.append(pyglet.text.Label(f"Hvis en virksomhed ejes, skal der betales {self.rent} gange så meget som øjnene viser\nHvis både Coca-Cola og Tuborg ejes, betales {self.rent*2} gange så meget som øjnene viser.", anchor_x="left", anchor_y="top",font_size=10, color=(0,0,0,255), multiline=True, width=width, height=height, x=x, y=9/10*height+y))
         return self.cardlabels
         
 

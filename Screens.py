@@ -124,21 +124,23 @@ class Auction(pyglet.event.EventDispatcher):
 
         self.windowSize = 576 #Størrelsen af vinduet
         self.box1 = pyglet.shapes.Rectangle(0, self.windowSize-40, 70, 40, (255, 255, 255))
-        self.text1 = pyglet.text.Label("Bidders:", anchor_x="center", anchor_y="center", font_size=30, x=35, y=self.windowSize-20)
+        self.text1 = pyglet.text.Label("Deltagende bydere:", anchor_x="center", anchor_y="center", font_size=15, x=0, y=0, width=70, height=40)
         self.playerShapes = []
         self.playerText = []
         for players in range(len(self.participants)):
-            self.playerShapes.append(pyglet.shapes.Rectangle(((players)/len(self.participants)*(self.windowSize-70))+70, self.windowSize-40, 1/len(self.participants), 40, self.participants[players].circle.color))
-            self.playerText.append(pyglet.text.Label(f"player{players+1}", anchor_x="center", anchor_y="center", x=(((players)/len(self.participants)*(self.windowSize-70))+70)+1/(1/len(self.participants)), y=self.windowSize-20))
-
+            self.playerShapes.append(pyglet.shapes.Rectangle(((players)/len(self.participants)*(self.windowSize-70))+70, 0, (self.windowSize-70)*1/len(self.participants), 40, self.participants[players].circle.color))
+            self.playerText.append(pyglet.text.Label(f"player{players+1}", anchor_x="center", anchor_y="center", x=(((players)/len(self.participants)*(self.windowSize-70))+70)+(1/2)*(self.windowSize-70)*1/len(self.participants), y=20))
+        self.tutorialBox = pyglet.shapes.Rectangle(self.windowSize-100, 50, 100, 300, (255, 255, 255))
+        self.tutorialText = pyglet.text.Label("Tryk på a, for at øge byd med 100kr\n Tryk på d, for at øge byd med 500kr\n Tryk på g, for at øge byd med 1000kr\n Tryk på j, for at øge byd med 2000kr\n Tryk på l, for at øge byd med 5000kr\n", newline=True, anchor_x="left", anchor_y="top", x=self.windowSize-100, y=50, font_size=12)
     def initialise(self, kwargs):
         self.folded.append(kwargs["initiator"])
         self.card = kwargs
 
-    def draw(self):
+    def draw(self): #her tegnes alle figurene osv der udgør skærmen
         self.box1.draw()
         self.text1.draw()
         for i in range(len(self.playerShapes)):
             self.playerShapes[i].draw()
             self.playerText[i].draw()
-        #her tegnes alle figurene osv der udgør skærmen
+        self.tutorialBox.draw()
+        self.tutorialText.draw()
