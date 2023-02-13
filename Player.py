@@ -42,6 +42,7 @@ class Player(pyglet.event.EventDispatcher):
 
     def move_by(self, spaces: int) -> None:
         self.move_to((self.tile+spaces)%40)
+        return self.tile
 
     def make_payment(self, amount) -> int:
         self.money -= amount

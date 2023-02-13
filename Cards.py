@@ -69,7 +69,7 @@ class street:
         else:
             self.upgradeCost = 4000
         
-        def checkAmountOwned(self, streetCards):
+    def checkAmountOwned(self, streetCards):
             if (self.RGB == (173, 216, 230)) or (self.RGB == (114, 47, 55)):
                 for i in range(len(streetCards)):
                     streetCards[i].rent = streetCards[i].rent*2
@@ -77,12 +77,21 @@ class street:
                 for i in range(len(streetCards)):
                     streetCards[i].rent = streetCards[i].rent*2
 
-        def updateRent(self):
+    def updateRent(self):
             if not (len(self.rents) < self.rentIndex+1):
                 self.rentIndex+=1
-                self.rent = rents[self.rentIndex]
+                self.rent = self.rents[self.rentIndex]
             else:
                 pass # already max upgraded
+
+    def drawCard(self, x, y, width, height):
+        self.cardlabels = []
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height, (255, 255, 255)))
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y+9/height, width, height/10, self.RGB)) #højden af headeren kan altid ændres
+        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=12, color=(0,0,0,255), x=width/2+x, y=height/20+y+height/9))
+        self.cardlabels.append(pyglet.text.Label(f"Leje af grunde >> {self.rents[0]}kr\nmed 1 hus >> {self.rents[1]}kr\n>> 2 huse >> {self.rents[2]}kr\n>> 3 huse >> {self.rents[3]}kr\n>> 4 huse >> {self.rents[4]}kr\n>> hotel >> {self.rents[5]}kr", multiline=True, width=width, height=height, anchor_x="left", anchor_y="top",font_size=8, color=(0,0,0,255), x=x, y=9/10*height+y))
+        self.cardlabels.append(pyglet.text.Label(f"Hvert hus koster {self.upgradeCost}kr\n et hotel koster {self.upgradeCost}kr + 4 huse",anchor_x="center",multiline=True, width=width, height=height, anchor_y="center",font_size=8, color=(0,0,0,255), x=x, y=y+(2*height)/10))
+        return self.cardlabels
 
 class Chance:
     def __init__(self):
@@ -122,9 +131,16 @@ class shippingPort:
         self.RGB = [0, 0, 200]
 
     def udpateRent(self, player):
-        pass #Check amount of shipping ports players owned, time that with 500 for new rent.
+        pass #Check if a new shipping is bought, if new shipping port is bought time current rent with 2, for new rent.
 
+    def drawCard(self, x, y, width, height):
+        self.cardlabels = []
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height, (255, 255, 255)))
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height/10, self.RGB)) #højden af headeren kan altid ændres
+        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=30, x=width/2+x, y=height/20+y+height/9))
+        self.cardlabels.append(pyglet.text.Label(f"Leje >> {self.rent}kr\nHvis 2 skipsporte ejes >> {self.rent*2}kr\nHvis 3 skipsporte ejes >> {self.rent*4}kr\nHvis 4 skipsporte ejes >> {self.rent*8}kr", multiline=True, width=width, height=height, anchor_x="left", anchor_y="top",font_size=8, color=(0,0,0,255), x=x, y=y+(2*height)/10))
 
+        return self.cardlabels
 
 class Corparation:
     def __init__(self, Name):
@@ -141,6 +157,14 @@ class Corparation:
 
     def calcRent(self, roll):
         return self.rent * roll
+    
+    def drawCard(self, x, y, width, height):
+        self.cardlabels = []
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height, (255, 255, 255)))
+        self.cardlabels.append(pyglet.shapes.Rectangle(x, y, width, height/10, self.RGB)) #højden af headeren kan altid ændres
+        self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=8, x=width/2+x, y=height/20+y+height/9))
+        self.cardlabels.append(pyglet.text.Label(f"Hvis en virksomhed ejes, skal der betales {self.rent} gange så meget som øjnene viser\nHvis både Coca-Cola og Tuborg ejes, betales {self.rent*2} gange så meget som øjnene viser.", anchor_x="left", anchor_y="top",font_size=8, color=(0,0,0,255), multiline=True, width=width, height=height, x=x, y=y+(2*height)/10))
+        return self.cardlabels
         
 
 class prison:
@@ -160,11 +184,6 @@ class parkingSpace:
         self.name = "Gratis parkering"
         self.price = ""
         self.RGB = (255, 255, 255)
-
-class streetCard(street):
-    def __init__(self):
-        super.__init__()
-        self.eventType
 
 def get_coord(i: int):
     if i < 11:

@@ -1,5 +1,6 @@
 import pyglet
 import Cards
+import Player
 
 class Board:
     def __init__(self) -> None:
@@ -8,6 +9,7 @@ class Board:
         
         self.background = pyglet.shapes.Rectangle(64,64,576,576,color=(24,99,18),batch=self.bot_batch)
         self.spaces: list[Cards.Space] = Cards.generate_spaces(self.bot_batch, self.top_batch)
+        self.ownership_indicators: list = [pyglet.shapes.Circle(space.x+7, space.y+7, 3, color=space.card.RGB, batch=self.top_batch) if hasattr(space.card, "owner") else None for space in self.spaces]
 
     def draw(self):
         self.bot_batch.draw()
@@ -15,16 +17,10 @@ class Board:
 
     def get_card(self, tile: int):
         return self.spaces[tile].card
-
-def generate_spaces(bot_batch, top_batch):
-    lst = [0]*40
-
-    lst[0] = Cards.Space((0,0),"START", 10, (234,169,28), bot_batch, top_batch)
-
-    for i in range(1, 40):
-       lst[i] = Cards.Space(get_coord(i), str(i), 10, (255,255,255), bot_batch, top_batch)
-
-    return lst
+    
+    def update_ownership(self, property, pid):
+        self.spaces[property].card.owner = pid
+        self.ownership_indicators[property].color = Player.Player.get_color(pid)
 
 def get_player_coords(pid: int, r: int, i: int) -> tuple[int, int]:
     pos = Cards.get_coord(i)
