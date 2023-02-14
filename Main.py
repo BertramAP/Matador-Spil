@@ -13,10 +13,10 @@ class Game(pyglet.event.EventDispatcher):
     def __init__(self, window: pyglet.window.Window, nplayers) -> None:
         super().__init__()
         self.register_event_type("rolled")
-        self.register_event_type("update_bank")
         self.register_event_type("next_player")
         self.register_event_type("change_screen")
         self.register_event_type("Pay_player")
+        self.register_event_type("auctioned")
         
         self.board = Board.Board()
 
@@ -36,9 +36,6 @@ class Game(pyglet.event.EventDispatcher):
         self.window.push_handlers(self.screens[self.active_screen])
 
         self.bank = Bank.Bank(self.players, nplayers)
-        self.bank.push_handlers(self.screens[self.active_screen])
-
-        self.screens[self.active_screen].push_handlers(self.bank)
 
         for player in self.players:
             player.push_handlers(self)
@@ -47,13 +44,9 @@ class Game(pyglet.event.EventDispatcher):
 
     def change_screen(self, tscreen: str, data: dict) -> None:
         self.window.pop_handlers()
-        self.bank.pop_handlers()
-        self.screens[self.active_screen].pop_handlers()
 
         self.window.push_handlers(self.screens[tscreen])
         self.screens[tscreen].initialise(data)
-        self.screens[tscreen].push_handlers(self.bank)
-        self.bank.push_handlers(self.screens[tscreen])
         
         self.active_screen = tscreen
 
@@ -75,8 +68,12 @@ class Game(pyglet.event.EventDispatcher):
         self.change_screen("Roller", dict(color=self.players[self.active_player].circle.color))
 
     def acquire_property(self, tile, pid, price):
-        self.bank.withdraw(price)
+        self.bank.withdraw(pid, price)
         self.board.update_ownership(tile, pid)
+        self.next_player()
+
+    def auctioned(self, data):
+        self.change_screen("Auction", data)
 
     def rolled(self, val) -> None:
         tile = self.players[self.active_player].move_by(val)
@@ -92,9 +89,9 @@ class Game(pyglet.event.EventDispatcher):
                 self.bank.withdraw(self.active_player, card.rent)
                 self.change_screen("Idle", dict(text=f"Du har betalt {card.rent} i leje"))
             if card.owner == -1:
-                self.change_screen("BuyProperty", dict(card=card, pid=self.players[self.active_player]))
+                self.change_screen("BuyProperty", dict(card=card, pid=self.active_player, ledger=self.bank.get_ledger(), tile=tile))
         else:    
-            self.change_screen("Idle", dict(text="Du har rullet"))        
+            self.change_screen("Idle", dict(text="Du har rullet"))      
 
 if __name__ == "__main__":
     SIDELENGTH = 704
