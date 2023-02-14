@@ -89,7 +89,7 @@ class street:
         self.cardlabels.append(pyglet.shapes.Rectangle(x, y+9/10*height, width, height/10, self.RGB)) #højden af headeren kan altid ændres
         self.cardlabels.append(pyglet.text.Label(self.name, anchor_x="center", anchor_y="center",font_size=15, color=(0,0,0,255), x=width/2+x, y=y+height*9/10+height/20))
         self.cardlabels.append(pyglet.text.Label(f"Leje af grunde >> {self.rents[0]}kr\n>> med 1 hus >> {self.rents[1]}kr\n>> 2 huse >> {self.rents[2]}kr\n>> 3 huse >> {self.rents[3]}kr\n>> 4 huse >> {self.rents[4]}kr\n>> hotel >> {self.rents[5]}kr", multiline=True, width=width, height=height, anchor_x="left", anchor_y="top",font_size=10, color=(0,0,0,255), x=x, y=9/10*height+y))
-        self.cardlabels.append(pyglet.text.Label(f"Hvert hus koster {self.upgradeCost}kr\net hotel koster {self.upgradeCost}kr + 4 huse",anchor_x="left", anchor_y="top",multiline=True, width=width, height=height,font_size=10, color=(0,0,0,255), x=x, y=y+(height)/2))
+        self.cardlabels.append(pyglet.text.Label(f"Hvert hus koster {self.upgradeCost}kr\net hotel koster {self.upgradeCost}kr + 4 huse",anchor_x="left", anchor_y="top",multiline=True, width=width, height=height,font_size=10, color=(0,0,0,255), x=x, y=y+(height)/3))
         return self.cardlabels
 
 class Chance:

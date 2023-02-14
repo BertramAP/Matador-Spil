@@ -131,7 +131,7 @@ class Auction(pyglet.event.EventDispatcher):
             self.playerShapes.append(pyglet.shapes.Rectangle(((players)/len(self.participants)*(self.windowSize-70))+70, 0, (self.windowSize-70)*1/len(self.participants), 40, self.participants[players].circle.color))
             self.playerText.append(pyglet.text.Label(f"player{players+1}", anchor_x="center", anchor_y="center", x=(((players)/len(self.participants)*(self.windowSize-70))+70)+(1/2)*(self.windowSize-70)*1/len(self.participants), y=20))
         self.tutorialBox = pyglet.shapes.Rectangle(self.windowSize-100, 50, 100, 300, (255, 255, 255))
-        self.tutorialText = pyglet.text.Label("Tryk på a, for at øge byd med 100kr\n Tryk på d, for at øge byd med 500kr\n Tryk på g, for at øge byd med 1000kr\n Tryk på j, for at øge byd med 2000kr\n Tryk på l, for at øge byd med 5000kr\n", newline=True, anchor_x="left", anchor_y="top", x=self.windowSize-100, y=50, font_size=12)
+        self.tutorialText = pyglet.text.Label("Tryk på a, for at øge byd med 100kr\n Tryk på d, for at øge byd med 500kr\n Tryk på g, for at øge byd med 1000kr\n Tryk på j, for at øge byd med 2000kr\n Tryk på l, for at øge byd med 5000kr\n", multiline=True, anchor_x="left", anchor_y="top", x=self.windowSize-100, y=50, font_size=12, width=100, height=300)
     def initialise(self, kwargs):
         self.folded.append(kwargs["initiator"])
         self.card = kwargs
