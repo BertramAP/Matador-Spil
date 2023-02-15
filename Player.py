@@ -10,6 +10,8 @@ class Player(pyglet.event.EventDispatcher):
         self.tile = 0
         self.streetCardsOwned = []
 
+        self.jail_cards = 0
+
     def draw(self):
         self.circle.draw()
 

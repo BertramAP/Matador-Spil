@@ -18,9 +18,41 @@ class Board:
     def get_card(self, tile: int):
         return self.spaces[tile].card
     
+    def set_card(self, tile, card):
+        self.spaces[tile].card = card
+    
     def update_ownership(self, property, pid):
         self.spaces[property].card.owner = pid
         self.ownership_indicators[property].color = Player.Player.get_color(pid)
+    
+    def update_rent(self, tile):
+        if type(self.spaces[tile].card) == Cards.street:
+            indices=[]
+            card=self.spaces[tile].card
+            all_owned=True
+
+            for index, space in enumerate(self.spaces):
+                if space.card.color == card.color:
+                    indices.append(index)
+                    if space.card.owner != card.owner:
+                        all_owned = False
+            
+            if all_owned:
+                for index in indices:
+                    self.spaces.upgradable = True
+        
+        elif type(self.spaces[tile].card) in (Cards.shippingPort, Cards.Corparation):
+            indices=[]
+            card=self.spaces[tile].card
+            owned = 0
+
+            for index, space in enumerate(self.spaces):
+                if space.card.color == card.color and space.card.owner == card.owner:
+                    indices.append(index)
+                    owned += 1
+            
+            for index in indices:
+                self.spaces[index].card.owned = owned
 
 def get_player_coords(pid: int, r: int, i: int) -> tuple[int, int]:
     pos = Cards.get_coord(i)

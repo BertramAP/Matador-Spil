@@ -29,7 +29,7 @@ class Roller(pyglet.event.EventDispatcher):
         self.pcolor = (self.color[0]*0.8, self.color[1]*0.8, self.color[2]*0.8)
 
     def throw_success(self, dt, res) -> None:
-        print(self.dispatch_event("rolled", res))
+        self.dispatch_event("rolled", res)
 
     def dice_changer(self, dt):
         self.dice = sample(self.all_dice, 2)
@@ -56,7 +56,7 @@ class Roller(pyglet.event.EventDispatcher):
             self.dice = [self.all_dice[one-1], self.all_dice[two-1]]
             self.not_rolled = False
             
-            self.clock.schedule_once(self.throw_success, 2, res=one+two)
+            self.clock.schedule_once(self.throw_success, 0.1, res=one+two)
 
 class Idle(pyglet.event.EventDispatcher):
     def __init__(self):
@@ -235,3 +235,52 @@ class Auction(pyglet.event.EventDispatcher):
                 self.change_rect(self.active_player, -1)
             else:
                 self.rotate_player()
+
+class UpgradeProperty(pyglet.event.EventDispatcher):
+    def __init__(self):
+        super().__init__()
+        self.register_event_type("finalize_upgrade")
+
+        self.headertext = pyglet.text.Label("", anchor_x="center", anchor_y="center", bold=True, x=352, y=562, color=(0, 0, 0, 255))
+
+        self.button_1 = pyglet.shapes.Rectangle(400, 300, 75, 40, (0,255,0))
+        self.button_2 = pyglet.shapes.Rectangle(480, 300, 75, 40, (255,0,0))
+
+        self.ja_label = pyglet.text.Label("Ja", x=self.button_1.x+self.button_1.height/2, y=self.button_1.y+self.button_1.height/2, anchor_x="center", anchor_y="center", font_size=15, color=(0,0,0,255))
+        self.nej_label = pyglet.text.Label("Nej", x=self.button_2.x+self.button_2.height/2, y=self.button_2.y+self.button_2.height/2, anchor_x="center", anchor_y="center", font_size=15, color=(0,0,0,255))
+
+        self.cumulative_cost = 0
+
+    def initialise(self, kwargs):
+        self.card = kwargs["card"]
+        self.playerCash = kwargs["player_cash"]
+        self.tile = kwargs["tile"]
+        self.headertext.text = f"Spiller {kwargs['pid']} har landet på {self.card.name}, som spilleren allerede ejer.\nDerfor har Spiller {kwargs['pid']} muligheden for at opgraderer {self.card.name}.\nDet vil koste {self.card.upgradeCost}kr at opgradere denne ejendom"
+
+    def draw(self):
+        self.button_1.draw()
+        self.ja_label.draw()
+        
+        self.button_2.draw()
+        self.nej_label.draw()
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if button != 1: return
+
+        if self.button_1.x <= x <= self.button_1.x+self.button_1.width and self.button_1.y <= y <= self.button_1.y+self.button_1.height:
+            self.button_pressed = 1
+            self.button_1.color = (0,200,0)
+        elif self.button_2.x <= x <= self.button_2.x+self.button_2.width and self.button_2.y <= y <= self.button_2.y+self.button_2.height:
+            self.button_pressed = 2
+            self.button_2.color = (200,0,0)
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        if button != 1: return
+
+        if self.button_pressed == 1 and self.button_1.x <= x <= self.button_1.x+self.button_1.width and self.button_1.y <= y <= self.button_1.y+self.button_1.height and self.playerCash > self.cumulative_cost + self.card.upgradeCost:
+            self.card.incrementRent()
+            self.cumulative_cost += self.card.upgradeCost
+        elif self.button_pressed == 2 and self.button_2.x <= x <= self.button_2.x+self.button_2.width and self.button_2.y <= y <= self.button_2.y+self.button_2.height:
+            self.dispatch_event("finalize_upgrade", self.tile, self.card, self.cumulative_cost)
+        self.button_1.color = (0,255,0)
+        self.button_2.color = (255,0,0)

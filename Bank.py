@@ -27,9 +27,19 @@ class Bank:
         self.ledger[pid] += amount
         self.update_labels()
 
+    def transfer(self, p1, p2, amount):
+        if self.ledger[p1] > amount:
+            self.withdraw(p1, amount)
+            if p2 != -1: self.deposit(p2, amount)
+            return True
+        return False
+
     def update_labels(self):
         for i, label in enumerate(self.money_labels):
             label.text = str(self.ledger[i])+"kr."
 
     def get_ledger(self, exclude=None):
         return self.ledger
+    
+    def get_holdings(self, pid):
+        return self.ledger[pid]

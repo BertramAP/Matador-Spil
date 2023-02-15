@@ -1,5 +1,6 @@
 import random
 import pyglet
+
 class Space:
     def __init__(self, card, pos: tuple[int, int], name: str, font_size: int, bgc: tuple[int], batch1: pyglet.graphics.Batch, batch2: pyglet.graphics.Batch) -> None:
         self.card = card
@@ -16,31 +17,9 @@ class Space:
         self.label.x = self.x + 4
         self.label.y = self.y + 4
 
-
-community_chest = ["Kør hen til Start", "Du får 2000kr fra aktie salg", "Du arver 6000kr", "Du skal betale din søns hospital regning på 4200kr"
-                   "Tag 1500kr for hver spiller", "Du har betalt for meget i skat, du modtager 2000kr fra skatteministeriet", "modtag 1000kr for dine service",
-                   "Du er kommet til skade, derfor skal du betale lægen 700kr", "Gå i dirkete i fængsel (spring start feldtet over)", "Bank fejl i din fordel, indsaml 1500kr",
-                   "Din juleopsparelse stiger i værdi, indsaml 2000kr", "Din livsforsikring stiger, indsaml 1200kr", "Fængels frikort", "Betal skole skat på 2500kr"
-                   "Du er kommet på en anden plads i en skønhedskonkurrence, indsaml 3500kr", "Du skal betale for vejarbejde på din grunde, 200kr pr hus, 700kr pr hotel"]
-chance = ["Du er blevet valgt som formand for bordet, betal hver spiller 500kr", "Din bolig værdi stiger, indsaml 4500kr", "Fængsels frikort",
-          "Banken udbetaler dig et udbytte på 1800kr", "Betal din resterende top skat på 1200kr", "Rejs til en vilkårlig skibshavn, og indsaml 4000kr hvis du passerer start"
-          "Rejs til start brikken (indsaml 4000kr)", "Rejs til Frederiksberg Alle (indsaml 4000kr hvis du passerer start)", "Gå tre fælter tilbage",
-          "Rejs til Rådhuspladsen", "Rejs til nærmeste skibshavn. Hvis havnen er ejet, så skal du betale ejeren dobbelt", 
-          "Rejs til det nermæste virksomhed, hvis virksomheden allerede er ejet, så slå terningen og betal ejeren 100 gange det der blev slået", "Rejs til Grønningen",
-          "Gå i dirkete i fængsel (spring start feldtet over)", "Din ejendomme skal reperares. For hvert hus du ejer betal 200kr, og for hvert hotel du ejer betal 800kr"]
-
-class Mysterycard:
-    def __init__(self) -> None:
-        self.cardType = random.randint(0, 1)
-        if self.cardType == 0:
-            self.card = random.randint(0, len(community_chest)-1)
-            self.cardText = community_chest[self.card]
-        else:
-            self.card = random.randint(0, len(community_chest)-1)
-            self.cardText = chance[self.card]
-    
-    def mysteryEvent(self):
-        self.card
+class MysteryHandler(pyglet.event.EventDispatcher):
+    def __init__(self):
+        self.mystery_pile = [("Kør hen til Start", {"event": "MYSTERY_GO_TO", "tile": 0, "start": True}), ("Du får 2000kr fra aktie salg", {"event": "MYSTERY_GIFT", "amount": 2000}), ("Du arver 6000kr", {"event": "MYSTERY_GIFT", "amount": 6000}), ("Du skal betale din søns hospital regning på 4200kr", {"event": "MYSTERY_BILL", "amount": 4200}), ("Tag 1500kr for hver spiller", {"event": "MYSTERY_STEAL", "amount": 1500}), ("Du har betalt for meget i skat, du modtager 2000kr fra skatteministeriet", {"event": "MYSTERY_GIFT", "amount": 2000}), ("modtag 1000kr for dine services", {"event": "MYSTERY_GIFT", "amount": 1000}), ("Du er kommet til skade, derfor skal du betale lægen 700kr", {"event": "MYSTERY_BILL", "amount": 700}), ("Gå i direkte i fængsel (spring start feldtet over)", {"event": "MYSTERY_GO_TO", "tile": 30, "start": False}), ("Bank fejl i din fordel, indsaml 1500kr", {"event": "MYSTERY_GIFT", "amount": 1500}), ("Din juleopsparelse stiger i værdi, indsaml 2000kr", {"event": "MYSTERY_GIFT", "amount": 2000}), ("Din livsforsikring stiger, indsaml 1200kr", {"event": "MYSTERY_GIFT", "amount": 1200}), ("Fængels frikort", {"event": "MYSTERY_GOOJFC"}), ("Betal skole skat på 2500kr", {"event": "MYSTERY_BILL", "amount": 2500}), ("Du er kommet på en anden plads i en skønhedskonkurrence, indsaml 3500kr", {"event": "MYSTERY_GIFT", "amount": 3500}), ("Du skal betale for vejarbejde på dine grunde, 200kr pr hus, 700kr pr hotel", {"event": "MYSTERY_HH_BILL", "house": 200, "hotel": 700}), ("Du er blevet valgt som formand for bestyrelsen, betal hver spiller 500kr", {"event": "MYSTERY_GIVE", "amount": 500}), ("Din bolig værdi stiger, indsaml 4500kr", {"event": "MYSTERY_GIFT", "amount": 4500}), ("Fængsels frikort", {"event": "MYSTERY_GOOJFC"}), ("Banken udbetaler dig et udbytte på 1800kr", {"event": "MYSTERY_GIFT", "event": 1800}), ("Betal din resterende top skat på 1200kr", {"event": "MYSTERY_BILL", "amount": 1200}), ("Rejs til en vilkårlig skibshavn, og indsaml 4000kr hvis du passerer start", {"event": "MYSTERY_GO_TO_PORT", "which": "random"})("Rejs til start brikken (indsaml 4000kr)", {"event": "MYSTERY_GO_TO", "tile": 0, "start": True}), ("Rejs til Frederiksberg Alle (indsaml 4000kr hvis du passerer start)", {"event": "MYSTERY_GO_TO", "tile": 11, "start": True}), ("Gå tre fælter tilbage", {"event": "MYSTERY_SHIFT", "shift": -3}), ("Rejs til Rådhuspladsen", {"event": "MYSTERY_GO_TO", "tile": 39, "start": True}), ("Rejs til nærmeste skibshavn. Hvis havnen er ejet, så skal du betale ejeren dobbelt", {"event": "MYSTERY_GO_TO_PORT", "which": "closest"}), ("Rejs til det nermæste virksomhed, hvis virksomheden allerede er ejet, så slå terningen og betal ejeren 100 gange det der blev slået", {"event": "MYSTERY_GO_TO_CORPORATION"}), ("Rejs til Grønningen", {"event": "MYSTERY_GO_TO", "tile": 24, "start": True}), ("Gå i direkte i fængsel (spring start feldtet over)", {"event": "MYSTERY_GO_TO", "tile": 30}), ("Dine ejendomme skal reperares. For hvert hus du ejer betal 200kr, og for hvert hotel du ejer betal 800kr", {"event": "MYSTERY_HH_BILL", "house": 200, "hotel": 800})]
 
 class start:
     def __init__(self): #get player
@@ -58,7 +37,7 @@ class street:
         self.price = str(price) + "kr"
         self.rents = rents
         self.rentIndex = 0
-        self.rent = rents[self.rentIndex]
+        self.upgradable = False
         if (self.intPrice < 2500):
             self.upgradeCost = 1000
         elif (self.intPrice < 4200):
@@ -67,21 +46,16 @@ class street:
             self.upgradeCost = 3000
         else:
             self.upgradeCost = 4000
-        
-    def checkAmountOwned(self, streetCards):
-            if (self.RGB == (173, 216, 230)) or (self.RGB == (114, 47, 55)):
-                for i in range(len(streetCards)):
-                    streetCards[i].rent = streetCards[i].rent*2
-            elif (len(streetCards) == 3):
-                for i in range(len(streetCards)):
-                    streetCards[i].rent = streetCards[i].rent*2
 
-    def updateRent(self):
+    def incrementRent(self):
             if not (len(self.rents) < self.rentIndex+1):
                 self.rentIndex+=1
-                self.rent = self.rents[self.rentIndex]
-            else:
-                pass # already max upgraded
+
+    def get_rent(self, _):
+        if self.upgradable and self.rentIndex == 0:
+            return self.rents[self.rentIndex]*2
+        else:
+            return self.rents[self.rentIndex]
 
     def drawCard(self, x, y, width, height):
         self.cardlabels = []
@@ -95,15 +69,8 @@ class street:
 class Chance:
     def __init__(self):
         self.name = "???"
-        self.cards = []
         self.price = ""
         self.RGB = (234,169,28)
-        for i in range(40): 
-            self.cards.append(Mysterycard())
-        self.index = 0
-    def pullCard(self):
-        #Use card event
-        self.index+=1
 
 class payTaxSpace:
     def __init__(self, Indkomstskat):
@@ -112,25 +79,28 @@ class payTaxSpace:
         self.price = ""
         self.Indkomstskat = Indkomstskat
 
-    def payTax(self):
+    def payTax(self, money):
         if self.Indkomstskat:
-            text = "Betal din indkomst skat på 10% eller betal 4000kr"
-            #Set text, og lad spilleren vælge
+            if money >= 40_000: payment = 4_000
+            else: payment = 0.1*money
+            text = f"Betal din indkomst skat på {payment}kr"
         if not self.Indkomstskat:
-            text = "Ekstra ordinær statskat, betal 2000kr"    
+            text = "Ekstra ordinær statskat, betal 2000kr"
+            payment = 2_000
+        return (int(payment), text)
 
 
 class shippingPort:
     def __init__(self, Name) -> None:
         self.name = Name          
         self.owner = -1
-        self.rent = 500 #500kr pr skibs port ejet
+        self.owned = 1 #500kr pr skibs port ejet
         self.intPrice = 4000
         self.price = "4000kr"
         self.RGB = [0, 0, 200]
 
-    def udpateRent(self, player):
-        pass #Check if a new shipping is bought, if new shipping port is bought time current rent with 2, for new rent.
+    def get_rent(self, _):
+        return [500,1000,3000,4000][self.owned-1]
 
     def drawCard(self, x, y, width, height):
         self.cardlabels = []
@@ -145,17 +115,15 @@ class Corparation:
     def __init__(self, Name):
         self.name = Name          
         self.owner = -1
+        self.owned = 1
         self.intPrice = 3000
         self.price = "3000kr"
         self.rent = 100
         self.RGB = (133, 1, 2)
         # skal betale 100 gange det terningen vise
     
-    def updateRent(self, player):
-        pass #Check if player owns both corparations, if player does set rent to 200
-
-    def calcRent(self, roll):
-        return self.rent * roll
+    def get_rent(self, roll):
+        return self.rent * roll * self.owned
     
     def drawCard(self, x, y, width, height):
         self.cardlabels = []
@@ -169,6 +137,7 @@ class Corparation:
 class prison:
     def __init__(self, visit):
         self.name = "Fængsel"
+        self.idle_text = "Du er på besøg i fængsel"
         self.price = ""
         self.visit = visit
         self.RGB = (47,79,79)
@@ -181,6 +150,7 @@ class prison:
 class parkingSpace:
     def __init__(self):
         self.name = "Gratis parkering"
+        self.idle_text = "Her er gratis parkering"
         self.price = ""
         self.RGB = (255, 255, 255)
 
