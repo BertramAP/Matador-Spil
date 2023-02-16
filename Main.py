@@ -110,7 +110,11 @@ class Game(pyglet.event.EventDispatcher):
                 self.change_screen("Idle", dict(text=tax_info[1]))
             else:
                 pass#TODO: tilføj skærm til håndtering af bankerot spillere ("du har tabt haha" tekst, pantsætning osv.)
-        #TODO: Det ende fængsel felt skal sende spilleren i fængsel.
+        elif space_type == Cards.prison: #TODO: Det ende fængsel felt skal sende spilleren i fængsel.
+            if card.visit:
+                self.change_screen("Idle", dict(text=card.idle_text))
+            if not card.visit:
+                pass #putPlayerInPrisn
         #TODO: Når spilleren passere start, skal de modtage 4000kr
         else: self.change_screen("Idle", dict(text="Du har rullet"))
 
