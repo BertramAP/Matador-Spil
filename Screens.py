@@ -180,6 +180,9 @@ class Auction(pyglet.event.EventDispatcher):
         self.card = kwargs["card"]
         self.ledger = kwargs["ledger"]
         self.card_drawables = kwargs["card"].drawCard(100,212,200,280)
+        self.highest_bidder = self.nplayers-1 if self.nplayers-1 != kwargs["pid"] else self.nplayers-2
+        self.highest_bid = 0
+        self.headertext.text = ""
 
         for i in range(self.nplayers):
             if i == kwargs["pid"]:

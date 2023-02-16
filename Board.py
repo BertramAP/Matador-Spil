@@ -32,14 +32,16 @@ class Board:
             all_owned=True
 
             for index, space in enumerate(self.spaces):
-                if space.card.color == card.color:
+                if space.card.RGB == card.RGB:
                     indices.append(index)
                     if space.card.owner != card.owner:
                         all_owned = False
-            
+            print(all_owned)
             if all_owned:
                 for index in indices:
-                    self.spaces.upgradable = True
+                    print(self.spaces[index].name)
+                    self.spaces[index].card.upgradable = True
+                    print("upgradable is ", self.spaces[index].card.upgradable)
         
         elif type(self.spaces[tile].card) in (Cards.shippingPort, Cards.Corparation):
             indices=[]
@@ -47,7 +49,7 @@ class Board:
             owned = 0
 
             for index, space in enumerate(self.spaces):
-                if space.card.color == card.color and space.card.owner == card.owner:
+                if space.card.RGB == card.RGB and space.card.owner == card.owner:
                     indices.append(index)
                     owned += 1
             

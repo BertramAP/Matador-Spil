@@ -104,13 +104,14 @@ class Game(pyglet.event.EventDispatcher):
         elif space_type == Cards.parkingSpace or (space_type == Cards.prison and card.visit):
             self.change_screen("Idle", dict(text=card.idle_text))
 
-        elif space_type == Cards.payTaxSpace:
+        elif space_type == Cards.payTaxSpace: #TODO: Husk, det to skatte fældter fungerer forskelligt, kig på et regelt matador bræt.
             tax_info = card.payTax(self.bank.get_holdings(self.active_player))
             if self.bank.transfer(self.active_player, -1, tax_info[0]):
                 self.change_screen("Idle", dict(text=tax_info[1]))
             else:
                 pass#TODO: tilføj skærm til håndtering af bankerot spillere ("du har tabt haha" tekst, pantsætning osv.)
-
+        #TODO: Det ende fængsel felt skal sende spilleren i fængsel.
+        #TODO: Når spilleren passere start, skal de modtage 4000kr
         else: self.change_screen("Idle", dict(text="Du har rullet"))
 
 if __name__ == "__main__":
