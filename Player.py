@@ -7,10 +7,10 @@ class Player(pyglet.event.EventDispatcher):
 
         self.id: int = id
         self.circle = pyglet.shapes.Circle(pos[0], pos[1], r, color=color)
-        self.tile = 0
-        self.streetCardsOwned = []
+        self.tile = 6
 
-        self.jail_cards = 0
+        self.jail_card = False
+        self.prison = 0
 
     def draw(self):
         self.circle.draw()
@@ -48,7 +48,7 @@ class Player(pyglet.event.EventDispatcher):
 
     def make_payment(self, amount) -> int:
         self.money -= amount
-
+    
         self.dispatch_event("update_bank", self.id)
 
     @staticmethod

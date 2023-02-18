@@ -37,7 +37,7 @@ class street:
         self.price = str(price) + "kr"
         self.rents = rents
         self.rentIndex = 0
-        self.upgradable = False
+        self.upgradable = True
         if (self.intPrice < 2500):
             self.upgradeCost = 1000
         elif (self.intPrice < 4200):
@@ -67,6 +67,9 @@ class street:
         self.cardlabels.append(pyglet.text.Label(f"Hvert hus koster {self.upgradeCost}kr\net hotel koster {self.upgradeCost}kr + 4 huse",anchor_x="left", anchor_y="top",multiline=True, width=width, height=height,font_size=10, color=(0,0,0,255), x=x, y=y+(height)*1.5/3))
         self.cardlabels.append(pyglet.text.Label(f"{self.name} koster \n{self.price} at købe", anchor_x="left", anchor_y="bottom", font_size=10, color=(0,0,0,255), x=x, y=y, width=width, height=height/3,multiline=True))
         return self.cardlabels
+    
+    def get_name(self):
+        return self.name.replace('\n', "")
 
 class Chance:
     def __init__(self):
@@ -148,10 +151,6 @@ class prison:
         self.visit = visit
         self.RGB = (47,79,79)
 
-    def putPlayerInPrison(self, Player, visit):
-        #Frøs spilleren i 2 ture
-        pass
-
 #simpel parkerings plads hvor der sker intet
 class parkingSpace:
     def __init__(self):
@@ -176,7 +175,7 @@ def generate_spaces(bot_batch, top_batch):
     chance = Chance()
     parkingplace = parkingSpace()
     SPACES = [start(), street('Rødovre\nvej',  [173, 216, 230], 1200, [50, 250, 750, 2250, 4000, 6000]), Chance(), street('Hvidovre\nvej', [173, 216, 230], 1200, [50, 250, 750, 2250, 4000, 6000]), 
-              payTaxSpace(True), shippingPort('Scandlines, Helsingør-Helsingborg'),street('Roskilde\nvej', [255, 100, 127], 2000, [100, 600, 1800, 5400, 8000, 11000]),
+              payTaxSpace(False), shippingPort('Scandlines, Helsingør-Helsingborg'),street('Roskilde\nvej', [255, 100, 127], 2000, [100, 600, 1800, 5400, 8000, 11000]),
               Chance(),street('Valby langgade', [255, 100, 127], 2000, [100, 600, 1800, 5400, 8000, 11000]), street('Allegade', [255, 100, 127], 2400, [150, 800, 2000, 6000, 9000, 12000]),
               prison(True), street('Frederiks\nberg Alle', [79, 121, 66], 2800, [200, 1000, 3000, 9000, 12500, 15000]), Corparation('Tuborg'), street('Bulows\nvej', [79, 121, 66], 2800, [200, 1000, 3000, 9000, 12500, 15000]),
               street('G.L. Kongevej', [79, 121, 66], 3200, [250, 1250, 3750, 10000, 14000, 18000]), shippingPort('Mols-\nLinien'),street('Bernstoff\nssvej', [128, 128, 128], 3600, [300, 1400, 4000, 11000, 15000, 19000]),

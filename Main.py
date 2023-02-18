@@ -17,16 +17,28 @@ class Game(pyglet.event.EventDispatcher):
         self.register_event_type("change_screen")
         self.register_event_type("auctioned")
         self.register_event_type("finalize_upgrade")
+        self.register_event_type("handle_prisoner")
         
         self.board = Board.Board()
 
         self.pbatch = pyglet.graphics.Batch()
 
         self.players = [Player.Player(i, Board.get_player_coords(i,16,0), 16, Player.Player.get_color(i)) for i in range(nplayers)]
-        self.active_player: int = 0
+        self.active_player: int = -1
         self.nplayers: int = nplayers
+        self.OLD = None
 
-        self.screens = {"Roller": Screens.Roller(), "Idle": Screens.Idle(), "BuyProperty": Screens.BuyProperty(), "Auction": Screens.Auction(self.players), "UpgradeProperty": Screens.UpgradeProperty()}
+        self.broke = []
+
+        self.screens = {"Roller": Screens.Roller(),
+                        "Idle": Screens.Idle(),
+                        "BuyProperty": Screens.BuyProperty(),
+                        "Auction": Screens.Auction(self.players),
+                        "UpgradeProperty": Screens.UpgradeProperty(),
+                        "Prison": Screens.Prison(),
+                        "Win": Screens.Win()
+                        }
+        
         self.active_screen = "Roller"
         for key in self.screens.keys():
             self.screens[key].push_handlers(self)
@@ -40,7 +52,7 @@ class Game(pyglet.event.EventDispatcher):
         for player in self.players:
             player.push_handlers(self)
 
-        self.change_screen("Roller", dict(color=self.players[self.active_player].circle.color))
+        self.next_player()
 
     def change_screen(self, tscreen: str, data: dict) -> None:
         self.window.pop_handlers()
@@ -62,7 +74,13 @@ class Game(pyglet.event.EventDispatcher):
 
     def next_player(self) -> None:
         self.active_player = (self.active_player+1)%self.nplayers
-        self.change_screen("Roller", dict(color=self.players[self.active_player].circle.color))
+
+        while self.active_player in self.broke:
+            self.active_player = (self.active_player+1)%self.nplayers
+
+        self.OLD = self.players[self.active_player].tile
+        if self.players[self.active_player].prison > 0: self.change_screen("Prison", dict(pid=self.players[self.active_player], card=self.players[self.active_player].jail_card, cash=self.bank.get_holdings(self.active_player)))
+        else: self.change_screen("Roller", dict(color=self.players[self.active_player].circle.color, prison_roll=False))
 
     def acquire_property(self, tile, pid, price):
         self.bank.withdraw(pid, price)
@@ -80,43 +98,77 @@ class Game(pyglet.event.EventDispatcher):
     def finalize_upgrade(self, tile, card, cumulative_cost):
         self.board.set_card(tile, card)
         self.bank.withdraw(card.owner, cumulative_cost)
+        self.next_player()
 
-    def go_to(self, pid, tile, moved=True, roll=0):
+    def handle_prisoner(self, released, roll):
+        if not released:
+            if roll == 11:
+                self.change_screen("Roller", dict(color=self.players[self.active_player].circle.color, prison_roll=True))
+            else:
+                self.players[self.active_player].prison -= 1
+                self.change_screen("Idle", dict(text="Du slog desværre ikke ens øjne."))
+        else:
+            self.players[self.active_player].prison = 0
+
+            if roll == -1:
+                self.bank.withdraw(self.active_player, 1_000)
+                self.change_screen("Roller", dict(color=self.players[self.active_player].circle.color, prison_roll=False))
+            elif roll == -2:
+                self.players[self.active_player].jail_card == False
+                self.change_screen("Roller", dict(color=self.players[self.active_player].circle.color, prison_roll=False))
+            elif roll > 0:
+                self.players[self.active_player].move_by(roll)
+                self.go_to(self.active_player, self.players[self.active_player].tile)
+
+    def go_broke(self, pid, biller):
+        self.bank.deposit(biller, self.bank.get_holdings(pid))
+        self.bank.freeze_account(pid)
+        self.broke.append(pid)
+
+        self.change_screen("Idle", dict(text=f"Spiller {pid+1} er gået bankerot."))
+        
+        if len(self.broke) == self.nplayers - 1:
+            self.change_screen("Win", dict(pid=list(filter(lambda obj: obj.id not in self.broke, self.players))[0].id))
+
+    def go_to(self, pid, tile, moved=True, roll=0, start=True):
         if not moved: self.players[pid].move_to(tile)
-
+        
         card = self.board.get_card(tile)
         space_type = type(card)
 
         if space_type in (Cards.street, Cards.shippingPort, Cards.Corparation):
-            if card.owner == pid and space_type == Cards.street and card.upgradable == True:
-                if card.rentIndex >= len(card.rents)-1:
-                    self.change_screen("Idle", dict(text="Du har landet på dit eget fuldt opgraderede kort."))
-                else:
+            if card.owner == pid and space_type == Cards.street:
+                if card.rentIndex < len(card.rents)-1 and card.upgradable:
                     self.change_screen("UpgradeProperty", dict(tile=tile,  player_cash=self.bank.get_holdings(pid), pid=pid, card=card))
+                else:
+                    self.change_screen("Idle", dict(text="Du har landet på dit eget,\n ikke opgraderbare kort."))
             elif card.owner != -1:
                 if self.bank.transfer(self.active_player, card.owner, card.get_rent(roll)):
                     self.change_screen("Idle", dict(text=f"Du har betalt {card.get_rent(roll)} i leje"))
                 else:
-                    pass#TODO: tilføj skærm til håndtering af bankerot spillere ("du har tabt haha" tekst, pantsætning osv.)
+                    self.go_broke(self.active_player, card.owner)
             elif card.owner == -1:
                 self.change_screen("BuyProperty", dict(card=card, pid=self.active_player, ledger=self.bank.get_ledger(), tile=tile))
 
         elif space_type == Cards.parkingSpace or (space_type == Cards.prison and card.visit):
             self.change_screen("Idle", dict(text=card.idle_text))
 
-        elif space_type == Cards.payTaxSpace: #TODO: Husk, det to skatte fældter fungerer forskelligt, kig på et regelt matador bræt.
+        elif space_type == Cards.payTaxSpace:
             tax_info = card.payTax(self.bank.get_holdings(self.active_player))
             if self.bank.transfer(self.active_player, -1, tax_info[0]):
                 self.change_screen("Idle", dict(text=tax_info[1]))
             else:
-                pass#TODO: tilføj skærm til håndtering af bankerot spillere ("du har tabt haha" tekst, pantsætning osv.)
-        elif space_type == Cards.prison: #TODO: Det ende fængsel felt skal sende spilleren i fængsel.
+                self.go_broke(self.active_player, -1)
+        elif space_type == Cards.prison:
             if card.visit:
-                self.change_screen("Idle", dict(text=card.idle_text))
+                self.change_screen("Idle", dict(text="Du er på besøg i fængsel."))
             if not card.visit:
-                pass #putPlayerInPrisn
-        #TODO: Når spilleren passere start, skal de modtage 4000kr
+                self.players[self.active_player].prison = True
         else: self.change_screen("Idle", dict(text="Du har rullet"))
+
+        if start and tile < self.OLD:
+            self.bank.deposit(self.active_player, 4_000)
+            self.bank.update_labels()
 
 if __name__ == "__main__":
     SIDELENGTH = 704

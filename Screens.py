@@ -5,6 +5,7 @@ class Roller(pyglet.event.EventDispatcher):
     def __init__(self):
         super().__init__()
         self.register_event_type("rolled")
+        self.register_event_type("handle_prisoner")
 
         self.tbatch = pyglet.graphics.Batch()
         self.bbatch = pyglet.graphics.Batch()
@@ -25,11 +26,17 @@ class Roller(pyglet.event.EventDispatcher):
         self.clock.schedule_interval(self.dice_changer, 0.1)
         self.not_rolled = True
         self.color = kwargs["color"]
+        self.prison_roll = kwargs["prison_roll"]
         self.button.color = self.color
         self.pcolor = (self.color[0]*0.8, self.color[1]*0.8, self.color[2]*0.8)
 
     def throw_success(self, dt, res) -> None:
-        self.dispatch_event("rolled", res)
+        if not self.prison_roll:
+            self.dispatch_event("rolled", res[0] + res[1])
+        elif res[0] == res[1]:
+            self.dispatch_event("handle_prisoner", True, res[0]+res[1])
+        else:
+            self.dispatch_event("handle_prisoner", False, 0)
 
     def dice_changer(self, dt):
         self.dice = sample(self.all_dice, 2)
@@ -56,7 +63,7 @@ class Roller(pyglet.event.EventDispatcher):
             self.dice = [self.all_dice[one-1], self.all_dice[two-1]]
             self.not_rolled = False
             
-            self.clock.schedule_once(self.throw_success, 0.1, res=one+two)
+            self.clock.schedule_once(self.throw_success, 0.1, res=(one,two))
 
 class Idle(pyglet.event.EventDispatcher):
     def __init__(self):
@@ -68,7 +75,7 @@ class Idle(pyglet.event.EventDispatcher):
 
         self.button = pyglet.shapes.Rectangle(270, 200, 160, 50, (255,0,0), batch=self.bbatch)
         self.text = [pyglet.text.Label("Forstået", anchor_x="center",font_size=30, x=350, y= 210, batch=self.tbatch),
-                     pyglet.text.Label("TBA", anchor_x="center",font_size=20,x=350,y=500,batch=self.tbatch)
+                     pyglet.text.Label("TBA", anchor_x="center",anchor_y="top",font_size=20,x=350,y=500,multiline=True,width=576,height=500,align="center",batch=self.tbatch)
                      ]
         
     def initialise(self, kwargs):
@@ -148,9 +155,8 @@ class Auction(pyglet.event.EventDispatcher):
         super().__init__()
         self.register_event_type("acquire_property")
     	
-        self.players = players
         self.participants = players
-        self.nplayers = len(self.participants)
+        self.nplayers = len(players)
         self.active_player = None
         self.highest_bidder = None
         self.highest_bid = 0
@@ -166,9 +172,9 @@ class Auction(pyglet.event.EventDispatcher):
         self.yellowBorder = pyglet.shapes.Rectangle(self.startX, self.startY, self.windowSize, 40, color=(255, 234, 0))
         self.text1 = pyglet.text.Label("Bydere:", anchor_x="center", anchor_y="center", font_size=12, x=self.startX+35, y=self.startY+20, width=70, height=40, color=(0, 0, 0, 255))
         self.playerShapes = []
-        for players in range(len(self.participants)):
-            self.playerShapes.append(pyglet.shapes.Rectangle(((players)/len(self.participants)*(self.windowSize))+self.startX, self.startY, (self.windowSize)*1/len(self.participants), 40, self.participants[players].circle.color))
-            self.playerShapes.append(pyglet.text.Label(f"spiller{players+1}", anchor_x="center", anchor_y="center", x=((((players)/len(self.participants)*(self.windowSize)))+(1/2)*(self.windowSize)*1/len(self.participants))+self.startX, y=self.startY+20, color=(0, 0, 0, 255)))
+        for players in range(self.nplayers):
+            self.playerShapes.append(pyglet.shapes.Rectangle(((players)/self.nplayers*(self.windowSize))+self.startX, self.startY, (self.windowSize)*1/self.nplayers, 40, self.participants[players].circle.color))
+            self.playerShapes.append(pyglet.text.Label(f"spiller{players+1}", anchor_x="center", anchor_y="center", x=((((players)/self.nplayers*(self.windowSize)))+(1/2)*(self.windowSize)*1/self.nplayers)+self.startX, y=self.startY+20, color=(0, 0, 0, 255)))
         self.tutorialBox = pyglet.shapes.Rectangle(self.windowSize-200, self.startY+250, 250, 100, (234, 0, 0))
         self.tutorialText = pyglet.text.Label("Tryk på q, for at gå ud af auktionen\nTryk på 1, for at øge bud med 100kr\nTryk på 2, for at øge bud med 500kr\nTryk på 3, for at øge bud med 1000kr\nTryk på 4, for at øge bud med 2000kr\nTryk på 5, for at øge bud med 5000kr\n", multiline=True, anchor_x="left", anchor_y="top", x=self.windowSize-200, y=self.startY+350, font_size=10, width=250, height=200, color=(0, 0, 0, 255))
         self.headertext = pyglet.text.Label("", anchor_x="center", anchor_y="center", bold=True, x=352, y=562, color=(0, 0, 0, 255))
@@ -244,7 +250,8 @@ class UpgradeProperty(pyglet.event.EventDispatcher):
         super().__init__()
         self.register_event_type("finalize_upgrade")
 
-        self.headertext = pyglet.text.Label("", anchor_x="center", anchor_y="center", bold=True, x=352, y=562, color=(0, 0, 0, 255))
+        self.headertext = pyglet.text.Label("", anchor_x="center", anchor_y="top", bold=True, x=352, y=612, color=(0, 0, 0, 255), multiline=True, width=400, height=500)
+        self.question = pyglet.text.Label("Vil du yderligere opgradere\ndenne grund?", font_size=20, x=500, y=400, color=(0,0,0,255), anchor_x="center", multiline=True, width=300, height=50)
 
         self.button_1 = pyglet.shapes.Rectangle(400, 300, 75, 40, (0,255,0))
         self.button_2 = pyglet.shapes.Rectangle(480, 300, 75, 40, (255,0,0))
@@ -258,7 +265,10 @@ class UpgradeProperty(pyglet.event.EventDispatcher):
         self.card = kwargs["card"]
         self.playerCash = kwargs["player_cash"]
         self.tile = kwargs["tile"]
-        self.headertext.text = f"Spiller {kwargs['pid']} har landet på {self.card.name}, som spilleren allerede ejer.\nDerfor har Spiller {kwargs['pid']} muligheden for at opgraderer {self.card.name}.\nDet vil koste {self.card.upgradeCost}kr at opgradere denne ejendom"
+        self.player = kwargs["pid"]
+        self.headertext.text = f"Spiller {kwargs['pid']+1} har landet på {self.card.get_name()}, som spilleren allerede ejer.\nDerfor har Spiller {kwargs['pid']} muligheden for at opgraderer {self.card.get_name()}.\nDet vil koste {self.card.upgradeCost}kr at opgradere denne ejendom, som er opgraderet til niveau {self.card.rentIndex}"
+        self.cardProperties = self.card.drawCard(100,212,200,280)
+        self.cumulative_cost = 0
 
     def draw(self):
         self.button_1.draw()
@@ -266,6 +276,12 @@ class UpgradeProperty(pyglet.event.EventDispatcher):
         
         self.button_2.draw()
         self.nej_label.draw()
+        
+        for i in range(len(self.cardProperties)):
+            self.cardProperties[i].draw()
+
+        self.headertext.draw()
+        self.question.draw()
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button != 1: return
@@ -280,10 +296,72 @@ class UpgradeProperty(pyglet.event.EventDispatcher):
     def on_mouse_release(self, x, y, button, modifiers):
         if button != 1: return
 
-        if self.button_pressed == 1 and self.button_1.x <= x <= self.button_1.x+self.button_1.width and self.button_1.y <= y <= self.button_1.y+self.button_1.height and self.playerCash > self.cumulative_cost + self.card.upgradeCost:
+        if self.button_pressed == 1 and self.button_1.x <= x <= self.button_1.x+self.button_1.width and self.button_1.y <= y <= self.button_1.y+self.button_1.height and self.playerCash > self.cumulative_cost + self.card.upgradeCost and self.card.rentIndex < len(self.card.rents)-1:
             self.card.incrementRent()
+            self.headertext.text = f"Spiller {self.player+1} har landet på {self.card.get_name()}, som spilleren allerede ejer.\nDerfor har Spiller {self.player} muligheden for at opgraderer {self.card.get_name()}.\nDet vil koste {self.card.upgradeCost}kr at opgradere denne ejendom, som er opgraderet til niveau {self.card.rentIndex}"
             self.cumulative_cost += self.card.upgradeCost
         elif self.button_pressed == 2 and self.button_2.x <= x <= self.button_2.x+self.button_2.width and self.button_2.y <= y <= self.button_2.y+self.button_2.height:
             self.dispatch_event("finalize_upgrade", self.tile, self.card, self.cumulative_cost)
         self.button_1.color = (0,255,0)
         self.button_2.color = (255,0,0)
+
+class Prison(pyglet.event.EventDispatcher):
+    def __init__(self) -> None:
+        super().__init__()
+        self.register_event_type("handle_prisoner")
+
+        self.header = pyglet.text.Label("", font_size=20, x=350, y=550, color=(0,0,0,255), anchor_x="center", multiline=True, width=300, height=50)
+
+        self.button_pressed = -1
+        self.pay = pyglet.shapes.Rectangle(250, 450, 200, 40, (255,0,0))
+        self.roll  = pyglet.shapes.Rectangle(250, 350, 200, 40, (255,0,0))
+
+        self.pay_label = pyglet.text.Label("Betal 1.000kr.", x=self.pay.x+self.pay.width/2, y=self.pay.y+self.pay.height/2, anchor_x="center", anchor_y="center", font_size=15)
+        self.roll_label = pyglet.text.Label("Rul", x=self.roll.x+self.roll.width/2, y=self.roll.y+self.roll.height/2, anchor_x="center", anchor_y="center", font_size=15)
+
+    def initialise(self, kwargs):
+        self.data = kwargs
+        self.cash = kwargs["cash"]
+        self.card = kwargs["card"]
+        self.player = kwargs["pid"]
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if button != 1: return
+
+        if self.pay.x <= x <= self.pay.x+self.pay.width and self.pay.y <= y <= self.pay.y+self.pay.height:
+            self.button_pressed = 1
+            self.pay.color = (200,0,0)
+        elif self.roll.x <= x <= self.roll.x+self.roll.width and self.roll.y <= y <= self.roll.y+self.roll.height:
+            self.button_pressed = 2
+            self.roll.color = (200,0,0)
+
+    def on_mouse_release(self, x, y, button, modifiers):
+        if button != 1: return
+
+        if self.button_pressed == 1 and self.cash > 1_000 and self.pay.x <= x <= self.pay.x+self.pay.width and self.pay.y <= y <= self.pay.y+self.pay.height:
+            self.dispatch_event("handle_prisoner", True, -1)
+        elif self.button_pressed == 2 and self.roll.x <= x <= self.roll.x+self.roll.width and self.roll.y <= y <= self.roll.y+self.roll.height:
+            self.dispatch_event("handle_prisoner", False, 11)
+
+        self.pay.color = (255,0,0)
+        self.roll.color = (255,0,0)
+
+    def draw(self):
+        self.header.draw()
+        self.roll.draw()
+        self.pay.draw()
+        self.pay_label.draw()
+        self.roll_label.draw()
+
+class Win(pyglet.event.EventDispatcher):
+    def __init__(self):
+        super().__init__()
+        self.register_event_type("dummy")
+
+        self.label = pyglet.text.Label("", x=352, y=352, anchor_x="center", anchor_y="center")
+
+    def initialise(self, data):
+        self.label.text = f"Spiller {data['pid'] + 1} har vundet"
+
+    def draw(self):
+        self.label.draw()

@@ -38,8 +38,13 @@ class Bank:
         for i, label in enumerate(self.money_labels):
             label.text = str(self.ledger[i])+"kr."
 
-    def get_ledger(self, exclude=None):
+    def get_ledger(self):
         return self.ledger
     
     def get_holdings(self, pid):
         return self.ledger[pid]
+    
+    def freeze_account(self, pid):
+        self.ledger[pid] = 0
+        self.label_rects[pid].color = (128,128,128)
+        self.update_labels()
