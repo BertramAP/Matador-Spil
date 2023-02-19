@@ -164,6 +164,7 @@ class Game(pyglet.event.EventDispatcher):
                 self.change_screen("Idle", dict(text="Du er på besøg i fængsel."))
             if not card.visit:
                 self.players[self.active_player].prison = True
+                self.change_screen("Idle", dict(text="Du er blevet smidt i fængsel."))
         else: self.change_screen("Idle", dict(text="Du har rullet"))
 
         if start and tile < self.OLD:

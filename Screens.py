@@ -63,7 +63,7 @@ class Roller(pyglet.event.EventDispatcher):
             self.dice = [self.all_dice[one-1], self.all_dice[two-1]]
             self.not_rolled = False
             
-            self.clock.schedule_once(self.throw_success, 0.1, res=(one,two))
+            self.clock.schedule_once(self.throw_success, 2, res=(one,two))
 
 class Idle(pyglet.event.EventDispatcher):
     def __init__(self):
