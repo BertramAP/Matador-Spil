@@ -30,19 +30,15 @@ class Board:
             indices=[]
             card=self.spaces[tile].card
             all_owned=True
-
             for index, space in enumerate(self.spaces):
                 if space.card.RGB == card.RGB:
                     indices.append(index)
                     if space.card.owner != card.owner:
                         all_owned = False
-            print(all_owned)
             if all_owned:
                 for index in indices:
-                    print(self.spaces[index].name)
                     self.spaces[index].card.upgradable = True
-                    print("upgradable is ", self.spaces[index].card.upgradable)
-        
+
         elif type(self.spaces[tile].card) in (Cards.shippingPort, Cards.Corparation):
             indices=[]
             card=self.spaces[tile].card

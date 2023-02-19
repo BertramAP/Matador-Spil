@@ -194,7 +194,7 @@ class Auction(pyglet.event.EventDispatcher):
             if i == kwargs["pid"]:
                 self.playerShapes[i*2].color = (128, 128, 128)
             else:
-                self.playerShapes[i*2].color = self.players[i].circle.color
+                self.playerShapes[i*2].color = self.participants[i].circle.color
 
 
         self.change_rect(self.active_player, 1)
@@ -251,7 +251,7 @@ class UpgradeProperty(pyglet.event.EventDispatcher):
         self.register_event_type("finalize_upgrade")
 
         self.headertext = pyglet.text.Label("", anchor_x="center", anchor_y="top", bold=True, x=352, y=612, color=(0, 0, 0, 255), multiline=True, width=400, height=500)
-        self.question = pyglet.text.Label("Vil du yderligere opgradere\ndenne grund?", font_size=20, x=500, y=400, color=(0,0,0,255), anchor_x="center", multiline=True, width=300, height=50)
+        self.question = pyglet.text.Label("Vil du yderligere opgradere\ndenne grund?", font_size=20, x=550, y=425, color=(0,0,0,255), anchor_x="center", multiline=True, width=300, height=50)
 
         self.button_1 = pyglet.shapes.Rectangle(400, 300, 75, 40, (0,255,0))
         self.button_2 = pyglet.shapes.Rectangle(480, 300, 75, 40, (255,0,0))

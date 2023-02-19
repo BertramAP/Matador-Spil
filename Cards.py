@@ -37,7 +37,7 @@ class street:
         self.price = str(price) + "kr"
         self.rents = rents
         self.rentIndex = 0
-        self.upgradable = True
+        self.upgradable = False
         if (self.intPrice < 2500):
             self.upgradeCost = 1000
         elif (self.intPrice < 4200):
