@@ -7,7 +7,7 @@ class Player(pyglet.event.EventDispatcher):
 
         self.id: int = id
         self.circle = pyglet.shapes.Circle(pos[0], pos[1], r, color=color)
-        self.tile = 6
+        self.tile = 0
 
         self.jail_card = False
         self.prison = 0
